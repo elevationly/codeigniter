@@ -1,0 +1,50 @@
+<html>
+<head>
+	<link rel="stylesheet" href="./bootstrap/css/bootstrap/bootstrap.css" />
+	<link rel="stylesheet" href="./bootstrap-table/bootstrap-table.css" />	
+	
+	<script src="./jquery/jquery.min.js"></script>
+	<script src="./bootstrap/js/bootstrap.js"></script>	
+	<script src="./bootstrap-table/bootstrap-table.js"></script>
+	<script src="./bootstrap-table/bootstrap-table-export.js"></script>
+	<script src="./extends/tableExport/jquery.base64.js"></script>
+	<script src="./extends/tableExport/tableExport.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		
+</head>
+
+<body>
+	<div>
+        <table data-toggle="table"  id="WorkTable"  data-height="246" data-pagination="true">
+            <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="WorkOrderId" data-align="right">派工单号</th>
+                    <th data-field="Vmodel" data-align="right">车辆型号</th>
+                    <th data-field="RepairDate" data-align="center">报修日期</th>
+                    <th data-field="CustomerName" data-align="">客户名称</th>
+                </tr>
+            </thead>
+     </table>
+</div>
+	
+<script type="text/javascript">
+$(function(){
+	$.ajax({
+		type: "GET",
+		url: "/zbjtools.php",           
+		dataType: "json",
+		success: function (msg) {
+			$("#WorkTable").bootstrapTable('load', msg);
+		},
+		error: function () {
+			alert("错误");
+		}
+	});
+});
+ 
+</script>
+
+</body>
+
+</html>

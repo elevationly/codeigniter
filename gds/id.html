@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>实物电子台账查询</title>
+<!--         <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.css">
+        <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+        <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap-table/1.15.4/locale/bootstrap-table-zh-CN.min.js"></script> -->
+        <link href="/extends/map.png" rel="SHORTCUT ICON">
+        <link rel="stylesheet" href="./bootstrap/css/bootstrap/bootstrap.css" />
+        <link rel="stylesheet" href="./bootstrap-table/bootstrap-table.css" />	
+        
+        <script src="./jquery/jquery.min.js"></script>
+        <script src="./bootstrap/js/bootstrap.js"></script>	
+        <script src="./bootstrap-table/bootstrap-table.js"></script>
+        <script src="./bootstrap-table/bootstrap-table-export.js"></script>
+        <script src="./extends/tableExport/jquery.base64.js"></script>
+        <script src="./extends/tableExport/tableExport.js"></script>
+        <!-- <script src="//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script> -->
+    </head>
+    <body>
+        <div class="text-cente"><H1 h1 align=center>实物电子台账</H1></div>
+ 
+        <table id="mytab" class="table table-hover"></table>
+        <script>
+            $('#mytab').bootstrapTable({
+                method: 'get',
+                url: "zbjtools.php", // 请求路径
+                striped: true,   // 是否显示行间隔色
+                pageNumber: 1, // 初始化加载第一页
+                pagination: false, // 是否分页
+                showRefresh: true, 
+                search: true,
+                clickToSelect: true, 
+                showExport: true,
+                exportDataType: "all", 
+                exportOptions:{  
+                    ignoreColumn: [0,1],  //忽略某一列的索引  
+                    fileName: '数据导出',  //文件名称设置  
+                    worksheetName: 'sheet1',  //表格工作区名称  
+                    tableName: '数据导出',  
+                    excelstyles: ['background-color', 'color', 'font-size', 'font-weight','border-top']
+                },
+              
+                buttonsAlign:"right", 
+				exportTypes:['excel'],
+                Icons:'glyphicon-export',
+                sidePagination: 'client', // server:服务器端分页|client：前端分页
+                pageSize: 50, // 单页记录数
+                pageList: [5, 20, 30],
+                // showRefresh : true, 刷新按钮
+                queryParams: function(params) { // 上传服务器的参数
+                    var temp = {
+                        name: $("#sname").val(),
+                        viewReason: $("#viewReason").val(),
+                    };
+                    return temp;
+                },
+                columns: [{
+                    title: '物料编码',
+                    field: 'goodsnumber',
+                    visible: false
+                }, {
+                    title: '物料编码',
+                    field: 'goodsnumber',
+                    align: 'center'
+
+                }, {
+                    title: '物料描述',
+                    field: 'mdescription',
+                    align: 'center'
+
+                }, {
+                    title: '库存数量',
+                    field: 'inventoryNew',
+                    align: 'center'
+                
+                }, {
+                    title: '单位',
+                    
+                    field: 'mainUnit',
+                    align: 'center'
+                }, {
+                    title: '单价',
+                    field: 'price',
+                    align: 'center'
+                    
+                }, {
+                    title: '仓库位置',
+                    field: 'locationName',
+                    align: 'center'
+                },{
+                    title: '库存物资类型',
+                    field: 'locationName',
+                    align: 'center',
+                    formatter: function (val) {
+                        if (val=='连江凤城1号库张林杰' || val=='连江凤城2号库张林杰' || val=='连江凤城仓库室外堆场张林杰')
+                            return val ='ERP账内'
+                        else
+                            return val = "代保管"
+                    }
+                },{
+                    title: '采购订单号',
+                    field: 'ordernumber',
+                    align: 'center'
+                }, {
+                    title: '供应商',
+                    field: 'flagcontact',
+                    align: 'center'
+                  }]
+            })
+
+        </script>
+    </body>
+
+</html>

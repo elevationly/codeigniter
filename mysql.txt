@@ -1,0 +1,15 @@
+-- 更新 ci_stock 表
+UPDATE ci_stock
+SET isDelete = 1, 
+    amount = CASE 
+                 WHEN isDelete <> 1 THEN 3.33 
+                 ELSE amount 
+              END;
+
+-- 更新 ci_cangku 表
+UPDATE ci_cangku
+SET isDelete = 1, 
+    amount = CASE 
+                 WHEN isDelete <> 1 THEN 3.33 
+                 ELSE amount 
+              END;
