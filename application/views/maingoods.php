@@ -17,4 +17,4 @@
 	})
 </script>
 
-<script src="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20140430"></script>
+<script src="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20260813"></script>

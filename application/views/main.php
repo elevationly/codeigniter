@@ -342,7 +342,7 @@ $(function(){
 		$("#b").css({background:"#1B96A9",color:"white"})
 		$("#a").css({background:"white",color:"black"})
         $("#c").css({background:"white",color:"black"})
-		var url="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20140430";
+		var url="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20260813";
 		$("#a").click(function(){
 			url="<?php echo base_url()?>statics/js/dist/purchaseListmain.js?ver=20140430";
 			$(this).css({background:"#1B96A9",color:"white"})
@@ -357,7 +357,7 @@ $(function(){
 			document.body.appendChild(script);
 		})
 		$("#b").click(function(){
-			url="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20140430";
+			url="<?php echo base_url()?>statics/js/dist/salesListmain.js?ver=20260813";
 			$(this).css({background:"#1B96A9",color:"white"})
 			$("#a").css({background:"white",color:"black"})
             $("#c").css({background:"white",color:"black"})

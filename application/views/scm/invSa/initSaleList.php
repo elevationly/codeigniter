@@ -109,7 +109,7 @@ a.ui-btn{margin-left:10px;}
     <div id="page"></div>
   </div>
 </div>
-<script src="<?php echo base_url()?>statics/js/dist/salesList.js?ver=20140432"></script>
+<script src="<?php echo base_url()?>statics/js/dist/salesList.js?ver=2026081302"></script>
 
 <script>
     $('#refresh').click(function(){

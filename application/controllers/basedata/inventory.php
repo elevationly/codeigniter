@@ -626,6 +626,8 @@ class Inventory extends CI_Controller {
 		$where = $this->getorderslistwhere();
 
 		$list = $this->data_model->get_stocks($where.' order by a.id desc limit '.$rows*($page-1).','.$rows);
+		// 仅对本页物料批量补仓储库存，避免主列表 JOIN
+		$cangkuMap = $this->buildCangkuInventoryMap($list);
 		//print_r($this->db->last_query());
 		foreach ($list as $arr=>$row) {
 		     // $v[$arr]['amount']        = (float)$row['iniamount'];
@@ -649,6 +651,8 @@ class Inventory extends CI_Controller {
 			$v[$arr]['flagcontact']  = $row['flagcontact'];
 			$v[$arr]['beizhu']  = $row['beizhu'];
 			$v[$arr]['daohuo']  = $row['daohuo'];
+			$cangkuKey = $row['goodsnumber']."\t".$row['ordernumber'];
+			$v[$arr]['cangkuInventory'] = number_format(isset($cangkuMap[$cangkuKey]) ? floatval($cangkuMap[$cangkuKey]) : 0, 3, '.', '');
 			if($row['flagNo']=="未到货"){
 				$v[$arr]['flagNo']  = "<span style='color:red;'>".$row['flagNo']."</span>";
 			}else{
@@ -682,6 +686,42 @@ class Inventory extends CI_Controller {
 		//exit();
 		die(json_encode($json));
 
+	}
+
+	/**
+	 * 按物料编号+采购订单号汇总仓储物资库库存（仅查本页/导出涉及的物料，不 JOIN 主列表）
+	 */
+	private function buildCangkuInventoryMap($list) {
+		$map = array();
+		if (empty($list) || !is_array($list)) {
+			return $map;
+		}
+		$goodsnumbers = array();
+		foreach ($list as $row) {
+			if (!empty($row['goodsnumber'])) {
+				$goodsnumbers[$row['goodsnumber']] = 1;
+			}
+		}
+		$goodsnumbers = array_keys($goodsnumbers);
+		if (empty($goodsnumbers)) {
+			return $map;
+		}
+		$rows = $this->db->select('goodsnumber,ordernumber,inventoryNew')
+			->where('isDelete', 0)
+			->where_in('goodsnumber', $goodsnumbers)
+			->get('cangku')
+			->result_array();
+		if (!is_array($rows)) {
+			return $map;
+		}
+		foreach ($rows as $r) {
+			$key = $r['goodsnumber']."\t".$r['ordernumber'];
+			if (!isset($map[$key])) {
+				$map[$key] = 0;
+			}
+			$map[$key] += floatval($r['inventoryNew']);
+		}
+		return $map;
 	}
 
     public function getorderslistwhere()
@@ -2351,7 +2391,20 @@ if (substr($ids, -1) == ',') {
 
 		$where = $this->getorderslistwhere();
 
-		$data['list']     = $this->data_model->get_stock($where.' order by a.id desc');
+		$list = $this->data_model->get_stock($where.' order by a.id desc');
+		$cangkuMap = $this->buildCangkuInventoryMap($list);
+		if (is_array($list)) {
+			foreach ($list as $k => $row) {
+				$key = $row['goodsnumber']."\t".$row['ordernumber'];
+				$list[$k]['cangkuInventory'] = number_format(isset($cangkuMap[$key]) ? floatval($cangkuMap[$key]) : 0, 3, '.', '');
+				$list[$k]['amount'] = $row['number'] * $row['price'];
+			}
+		}
+		$data['list'] = $list;
+		$data['fg'] = str_enhtml($this->input->get_post('fg',TRUE));
+		$data['oldnumber'] = str_enhtml($this->input->get_post('oldnumber',TRUE));
+		$data['newnumber'] = str_enhtml($this->input->get_post('newnumber',TRUE));
+		$data['number'] = str_enhtml($this->input->get_post('number',TRUE));
         $this->load->view('settings/goods-exportorder',$data);
 
 	}

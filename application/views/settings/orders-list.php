@@ -174,7 +174,7 @@ h3{background: #EEEEEE;border: 1px solid #ddd;padding: 5px 10px;}
 		$(".Covering").hide();
 	})
 </script>
-<script src="<?php echo base_url()?>statics/js/dist/ordersList.js?ver=20140430"></script>
+<script src="<?php echo base_url()?>statics/js/dist/ordersList.js?ver=2026081304"></script>
 
 <script>	
 

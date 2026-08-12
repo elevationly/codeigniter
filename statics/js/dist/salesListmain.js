@@ -37,7 +37,7 @@ var THISPAGE = {
 			altRows: !0,
 			gridview: !0,
 			multiselect: !0,
-			colNames: ["操作", "单据日期", "单据编号", "项目名", "总数量", "总金额"/*, "已" + c + "款"*/, "领料人", "制单人", "备注", "订单来源"],
+			colNames: ["操作", "单据日期", "单据编号", "项目名", "领料人", "仓库", "订单来源"],
 			colModel: [{
 				name: "operating",
 				width: 60,
@@ -61,56 +61,15 @@ var THISPAGE = {
 				width: 530,
 				align: "center"
 			}, {
-				name: "totalQty",
-				index: "totalQty",
-				hidden: hiddenAmount,
-				width: 100,
-				align: "right",
-				formatter: "currency"
-			}, {
-				name: "amount",
-				index: "amount",
-				hidden: hiddenAmount,
-				width: 100,
-				align: "right",
-				formatter: "currency"
-			}, {
 				name: "liname",
 				index: "liname",
 				align: "center",
 				width: 80
-			}, /*{
-				name: "hxStateCode",
-				index: "hxStateCode",
-				width: 80,
-				fixed: !0,
-				align: "center",
-				title: !0,
-				classes: "ui-ellipsis",
-				formatter: function(a) {
-					switch (a) {
-					case 0:
-						return "未" + c + "款";
-					case 1:
-						return "部分" + c + "款";
-					case 2:
-						return "全部" + c + "款";
-					default:
-						return "&#160"
-					}
-				}
-			},*/ {
-				name: "userName",
-				index: "userName",
-				width: 80,
-				fixed: !0,
-				align: "center",
-				title: !0,
-				classes: "ui-ellipsis"
 			}, {
-				name: "description",
-				index: "description",
-				width: 200,
+				name: "locationNames",
+				index: "locationNames",
+				width: 280,
+				align: "center",
 				classes: "ui-ellipsis",
 				sortable: !1
 			}, {

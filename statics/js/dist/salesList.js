@@ -318,32 +318,24 @@ var THISPAGE = {
 					d.checked || $("#" + d.id).addClass("gray")
 				}
 				"150502" == queryConditions.transType && $("#grid").find(".jqgrow").addClass("red")
-			},
-			gridComplete: function() {
-                var oldnumber=0;
-                var number=0;
-                $("#grid").find("tr").each(function(){
-                    var tdArr = $(this).children();
-                    var history_income_type = Number(tdArr.eq(3).text());
-                    //var history_income_money = Number(tdArr.eq(9).text());
-                    var history_income_remark = Number(tdArr.eq(6).text());
-                    oldnumber+=history_income_type;
-                    //newnumber+=history_income_money;
-                    number+=history_income_remark;
-
-
-
-                });
-
+                // 合计：数量、总金额
+                var qtySum = 0, amountSum = 0, rows = (a && a.data && a.data.rows) ? a.data.rows : [];
+                for (var i = 0; i < rows.length; i++) {
+                    var q = parseFloat(rows[i].totalQty);
+                    var m = parseFloat(rows[i].amount);
+                    if (!isNaN(q)) qtySum += q;
+                    if (!isNaN(m)) amountSum += m;
+                }
+                $("#grid tbody tr.footrow-sum").remove();
                 $("#grid tbody").append(
-                    "<tr role='row' style='height:40px;'>" +
+                    "<tr role='row' class='footrow-sum' style='height:40px;'>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;'></td>" +
-                    "<td role='gridcell'  style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>合计：</td>" +
+                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>合计：</td>" +
+                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>" + qtySum + "</td>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'></td>" +
-                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>"+parseFloat(oldnumber.toFixed(3))+"</td>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'></td>" +
-                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'></td>" +
-                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>"+parseFloat(number.toFixed(3))+"</td>" +
+                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'>" + amountSum + "</td>" +
+                    "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;'></td>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;'></td>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;'></td>" +
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;text-align:center;'></td>" +
@@ -351,7 +343,8 @@ var THISPAGE = {
                     "<td role='gridcell' style='border-right:1px solid #D6DEE3;border-bottom:1px solid #D6DEE3;'></td>" +
                     "</tr>"
                 );
-            },
+			},
+			gridComplete: function() {},
 			loadError: function() {},
 			ondblClickRow: function(a) {
 				$("#" + a).find(".ui-icon-pencil").trigger("click")

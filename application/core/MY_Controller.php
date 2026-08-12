@@ -765,61 +765,90 @@ else
      //ÃÂ­Â»Â·Â¶ÃÃÂ¡excelÃÃÂ¼Ã¾,Â¶ÃÃÂ¡ÃÂ»ÃÃµ,Â²Ã¥ÃÃ«ÃÂ»ÃÃµ
 	   $strquestion="";
 	   //ÃÃ¥Â¿ÃÃÃÃÂ±Â±Ã­ÃÃ¯ÃÃ¦ÂµÃÃÃ¹ÃÃÃÃÃÂ¢
-	  // $this->mysql_model->query('delete from ci_invoice_cursor',2);
-	   //$this->mysql_model->delete('invoice_cursor','');
+	   $stats = array('success' => 0, 'duplicate' => 0, 'duplicateNumbers' => array(), 'errors' => array());
 
    for($j=3;$j<=$highestRow;$j++)
         {
 
-		 $a = $objPHPExcel->getActiveSheet()->getCell("A".$j)->getValue();//Â»Ã±ÃÂ¡AÃÃÂµÃÃÂµ
-         $b = $objPHPExcel->getActiveSheet()->getCell("B".$j)->getValue();//Â»Ã±ÃÂ¡BÃÃÂµÃÃÂµ
-		 $c = $objPHPExcel->getActiveSheet()->getCell("C".$j)->getValue();//Â»Ã±ÃÂ¡cÃÃÂµÃÃÂµ
-		 $d = $objPHPExcel->getActiveSheet()->getCell("D".$j)->getValue();//Â»Ã±ÃÂ¡dÃÃÂµÃÃÂµ
-		 $e = $objPHPExcel->getActiveSheet()->getCell("E".$j)->getValue();//ÃÂ´ÃÂ¬
-		 $f = $objPHPExcel->getActiveSheet()->getCell("F".$j)->getValue();//WBSÃÂªÃÃÂºÃ
-		 $g = $objPHPExcel->getActiveSheet()->getCell("G".$j)->getValue();//Â¹Â¤ÂµÂ¥ÂºÃ
-		 $h = $objPHPExcel->getActiveSheet()->getCell("H".$j)->getValue();//ÃÃ®ÃÂ¿ÃÃ¨Â¼Ã
-		 $i = $objPHPExcel->getActiveSheet()->getCell("I".$j)->getValue();//ÃÃ¯ÃÃÃÃªÃÃ«
-		 $jj = $objPHPExcel->getActiveSheet()->getCell("J".$j)->getValue();//Â±Â¸ÃÂ¢
-		 if($a==""){
-          header("Content-type:text/html;charset=utf-8");
-		  //echo iconv("GB2312","UTF-8",'ÂµÂ¼ÃÃ«ÃÃªÂ³Ã');
-		  echo $this->characet("ÂµÂ¼ÃÃ«ÃÃªÂ³Ã");
-		  exit();
+		 try {
+		 $a = $objPHPExcel->getActiveSheet()->getCell("A".$j)->getValue();
+		 $b = trim((string)$objPHPExcel->getActiveSheet()->getCell("B".$j)->getValue());
+		 $c = trim((string)$objPHPExcel->getActiveSheet()->getCell("C".$j)->getValue());
+		 $d = trim((string)$objPHPExcel->getActiveSheet()->getCell("D".$j)->getValue());
+		 $e = trim((string)$objPHPExcel->getActiveSheet()->getCell("E".$j)->getValue());
+		 $f = trim((string)$objPHPExcel->getActiveSheet()->getCell("F".$j)->getValue());
+		 $g = trim((string)$objPHPExcel->getActiveSheet()->getCell("G".$j)->getValue());
+		 $h = trim((string)$objPHPExcel->getActiveSheet()->getCell("H".$j)->getValue());
+		 $i = trim((string)$objPHPExcel->getActiveSheet()->getCell("I".$j)->getValue());
+		 $jj = trim((string)$objPHPExcel->getActiveSheet()->getCell("J".$j)->getValue());
+		 } catch (Exception $ex) { $a=$b=$c=$d=$e=$f=$g=$h=$i=$jj=''; }
+		 if($a==="" && $b===""){
+		 	break;
 		 }
-		//  $count = $this->mysql_model->get_count('goods',array('number'=>$b));
-
-		   //$rs=$this->mysql_model->get_rows('contact',array('number'=>$b));
-			 //echo iconv("GB2312","UTF-8","$rs");
-		 // exit();
-			$rs=$this->db->query("select count(*) as num from ci_contact where number='$b' and isDelete=0");
-			$result=$rs->row_array();
-			//print_r($result['num']);
-			//exit();
-			//echo $result['num'];
-			//exit();
+		 if($b===""){
+		 	$stats['errors'][] = "第".$j."行：项目编号为空，已跳过";
+		 	continue;
+		 }
+		 $num_sql = "select count(*) as num from ci_contact where (number='".$this->db->escape_str($b)."' OR name='".$this->db->escape_str($c)."') and isDelete=0";
+		 $rs = $this->db->query($num_sql);
+		 $result = $rs->row_array();
            if($result['num']==0)
 {
-		      $data['number']="$b";
-			  $data['name']="$c";
-			  $data['cCategory']="2";
-			  $data['cCategoryName']="$d";
-			  $data['disable']="$e";
-			  $data['wbs']="$f";
-			  $data['gdnumber']="$g";
-			  $data['design']="$h";
-			  $data['apply']="$i";
-			  $data['remark_']="$jj";
-			 $this->mysql_model->insert('contact',$data);
+		      try {
+		      $e = $e==='' ? '' : (string)$e;
+		      $h = $h==='' ? '' : (string)$h;
+		      $i = $i==='' ? '' : (string)$i;
+		      $disable_val = (strpos($e, '竣工') !== false || strpos($e, '禁用') !== false || $e === '1') ? 1 : 0;
+		      $design_val  = (strpos($h, '已设计') !== false || $h === '1') ? 1 : 0;
+		      $apply_val   = (strpos($i, '已申请') !== false || $i === '1') ? 1 : 0;
+
+		      $cCategoryId = 0;
+		      $cCategoryName = '';
+		      if ($d !== '') {
+		      	$catRows = $this->mysql_model->get_results('category', array('name' => $d, 'typeNumber' => 'customertype', 'isDelete' => 0), 'id asc', 0, 1, 'id');
+		      	$catId = (!empty($catRows) && isset($catRows[0]['id'])) ? (int)$catRows[0]['id'] : 0;
+		      	if ($catId > 0) {
+		      		$cCategoryId = (int)$catId;
+		      		$cCategoryName = $d;
+		      	} else {
+		      		$this->mysql_model->insert('category', array('name' => $d, 'typeNumber' => 'customertype', 'level' => 1, 'parentId' => 0));
+		      		$cCategoryId = (int)$this->db->insert_id();
+		      		if ($cCategoryId > 0) {
+		      			$this->mysql_model->update('category', array('path' => (string)$cCategoryId), array('id' => $cCategoryId));
+		      			$cCategoryName = $d;
+		      		}
+		      	}
+		      }
+
+		      $data['type'] = -10;
+		      $data['number'] = $b;
+			  $data['name'] = $c;
+			  $data['cCategory'] = $cCategoryId;
+			  $data['cCategoryName'] = $cCategoryName;
+			  $data['disable'] = $disable_val;
+			  $data['wbs'] = ($f === '' || $f === null) ? '' : (string)$f;
+			  $data['gdnumber'] = ($g === '' || $g === null) ? '' : (string)$g;
+			  $data['design'] = $design_val;
+			  $data['apply'] = $apply_val;
+			  $data['remark_'] = ($jj === '' || $jj === null) ? '' : (string)$jj;
+			  $this->mysql_model->insert('contact',$data);
+			  $stats['success']++;
+			  } catch (Exception $ex) {
+			  	$stats['errors'][] = "第".$j."行：".$b." 导入失败，已跳过（".$ex->getMessage()."）";
+			  }
 
 
 
 			 //echo "true";
 			// echo "ÂµÂ¼ÃÃ«Â³ÃÂ¹Â¦!ÃÃ¯ÃÃÂ±Ã ÂºÃÃÂªÂ£Âº".$b."<br/>";
+		     } else {
+		     	$stats['duplicate'] = 1;
+		     	$stats['stoppedByDuplicate'] = true;
+		     	$stats['duplicateRow'] = $j;
+		     	$stats['duplicateNumbers'] = array($b . ' / ' . $c);
+		     	break;
 		     }
-			// else
-			 //{
-				//echo "Â²Â»Â´Ã¦ÃÃÃÃ¯ÃÃÂºÃÃÂªÂ£Âº".$b.",<br/>";
+			// was: else { echo duplicate...
 				//echo iconv("GB2312","UTF-8","ÃÃÂ´Ã¦ÃÃÂ±Ã ÂºÃÃÂªÂ£Âº".$b.",<br/>");
 				//exit();
 			// }
@@ -828,9 +857,7 @@ else
 
         }
 
-
-
-
+		return $stats;
 	}
 
 

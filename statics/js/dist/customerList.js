@@ -262,6 +262,7 @@ $(function() {
 				lock: !0
 			})
 		}), $("#btn-export").on("click", function(a) {
+			a.preventDefault();
 			if (Business.verifyRight("BU_EXPORT")) {
                 var b = "输入项目编号/ 名称" === $_matchCon.val() ? "" : $.trim($_matchCon.val()),
                     b1 = "输入备注内容" === $_remark_.val() ? "" : $.trim($_remark_.val()),
@@ -269,7 +270,9 @@ $(function() {
                     b4 = $_apply.val(),
                     b5 = $_disable.val(),
                     c = e ? e.getValue() : -1;
-				$(this).attr("href", "../basedata/customer/exporter?action=exporter&isDelete=2&skey=" + b + '&design='+b3+'&apply='+b4+'&disable='+b5+'&remark_='+b1+'&categoryId='+ c)
+				var base = (typeof SITE_URL !== "undefined" && SITE_URL) ? SITE_URL.replace(/\/$/, "") : "";
+				var exportUrl = (base ? base + "/" : "../") + "basedata/customer/exporter?action=exporter&isDelete=2&skey=" + encodeURIComponent(b) + "&design=" + b3 + "&apply=" + b4 + "&disable=" + b5 + "&remark_=" + encodeURIComponent(b1) + "&categoryId=" + c;
+				window.open(exportUrl, "_blank");
 			}
 		}), $("#grid").on("click", ".operating .ui-icon-pencil", function(a) {
 			if (a.preventDefault(), Business.verifyRight("BU_UPDATE")) {
@@ -377,11 +380,12 @@ $(function() {
                 g.setCheck(b, c)
             }
         }),$(".wrapper").on("click", "#daoru", function(a) {
-				//if (b.preventDefault(), Business.verifyRight("PU_UNCHECK")) {
+				a.preventDefault();
 					var c = $(this);
 
+					var importUrl = (typeof SITE_URL !== "undefined" && SITE_URL) ? SITE_URL + "/settings/Contractorderc" : "../settings/Contractorderc";
 					$.dialog({
-						content: "url:../settings/Contractorderc",
+						content: "url:" + importUrl,
 						data: {
 							title: 'excel上传',
 							id: "<?php echo $billNo?>",
@@ -390,8 +394,8 @@ $(function() {
 							}
 						},
 						title: 'excel上传',
-						width: 300,
-						height: 130,
+						width: 520,
+						height: 360,
 						max: !1,
 						min: !1,
 						cache: !1,

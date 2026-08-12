@@ -552,11 +552,30 @@ class InvSa extends MY_Controller {
 						$v[$arr]['liname']    = $row['liname'];
 						$v[$arr]['description']    = $row['description'];
 						$v[$arr]['ordernumber']    = $row['ordernumber'];
+						$v[$arr]['locationNames']  = isset($row['locationName']) ? $row['locationName'] : '';
 					}
 			}else{
 
 				$list = $this->data_model->get_orders($where.' order by '.$order.' limit '.$rows*($page-1).','.$rows);
+				$locationNames_tmp = [];
+				if (!empty($list)) {
+					$id_arr = array_column($list, 'id');
+					if (!empty($id_arr)) {
+						$orders_info_arr = $this->db->select('iid,locationName')->where_in('iid', $id_arr)->get('ci_orders_info')->result_array();
+						if (is_array($orders_info_arr)) {
+							foreach ($orders_info_arr as $value) {
+								if ($value['locationName'] !== '' && $value['locationName'] !== null) {
+									$locationNames_tmp[$value['iid']][] = $value['locationName'];
+								}
+							}
+						}
+					}
+				}
 				foreach ($list as $arr=>$row) {
+				$locationNames_ = '';
+				if (!empty($locationNames_tmp[$row['id']])) {
+					$locationNames_ = implode('、', array_unique($locationNames_tmp[$row['id']]));
+				}
 				$v[$arr]['hxStateCode']  = intval($row['hxStateCode']);
 
 				$v[$arr]['id']           = intval($row['id']);
@@ -578,6 +597,7 @@ class InvSa extends MY_Controller {
 				$v[$arr]['transTypeName']= $row['transTypeName'];
 				$v[$arr]['liname']= $row['liname'];
 				$v[$arr]['disEditable']  = 0;
+				$v[$arr]['locationNames'] = $locationNames_;
 			}
 
 
@@ -882,7 +902,25 @@ class InvSa extends MY_Controller {
 				$offset = ($page - 1) * $rows;
 				
 				$list = $this->data_model->get_orders($where.' order by '.$order.' limit '.$offset.','.$rows);
+				$locationNames_tmp = [];
+				if (!empty($list)) {
+					$id_arr = array_column($list, 'id');
+					if (!empty($id_arr)) {
+						$orders_info_arr = $this->db->select('iid,locationName')->where_in('iid', $id_arr)->get('ci_orders_info')->result_array();
+						if (is_array($orders_info_arr)) {
+							foreach ($orders_info_arr as $value) {
+								if ($value['locationName'] !== '' && $value['locationName'] !== null) {
+									$locationNames_tmp[$value['iid']][] = $value['locationName'];
+								}
+							}
+						}
+					}
+				}
 				foreach ($list as $arr=>$row) {
+				$locationNames_ = '';
+				if (!empty($locationNames_tmp[$row['id']])) {
+					$locationNames_ = implode('、', array_unique($locationNames_tmp[$row['id']]));
+				}
 				$v[$arr]['hxStateCode']  = intval($row['hxStateCode']);
 
 				$v[$arr]['id']           = intval($row['id']);
@@ -904,6 +942,7 @@ class InvSa extends MY_Controller {
 				$v[$arr]['transTypeName']= $row['transTypeName'];
 				$v[$arr]['liname']= $row['liname'];
 				$v[$arr]['disEditable']  = 0;
+				$v[$arr]['locationNames'] = $locationNames_;
 			}
 
 
@@ -1590,11 +1629,9 @@ class InvSa extends MY_Controller {
 
 	public function postexcelc($filename)
 	{
-		//需要传入绝对路径
-		 $jddir=$_SERVER['DOCUMENT_ROOT'];
-		 $jddir=str_replace('/','\\',$jddir);
-	    $this->importexcelc($jddir.'\data\upfile\excel\\'.$filename);
-	// $this->importexcelorders('D:\webserver\www\toolzhubajie1\data\upfile\excel\moban1.xls');
+		$jddir = $_SERVER['DOCUMENT_ROOT'];
+		$jddir = str_replace('/','\\',$jddir);
+		return $this->importexcelc($jddir.'\data\upfile\excel\\'.$filename);
 	}
 
 	//上传excel
@@ -1611,18 +1648,24 @@ class InvSa extends MY_Controller {
 			$name=explode('.',$_FILES["file"]["name"]);
 				$date=date('Ymdhis');
 				$newPath=$date.'.'.$name[1];
-				//$_FILES["file"]["name"]=iconv("UTF-8","gb2312",$_FILES["file"]["name"]);
-				// 如果 upload 目录不存在该文件则将文件上传到 upload 目录下
 				move_uploaded_file($_FILES["file"]["tmp_name"], "./data/upfile/excel/" . $newPath);
-				//$_FILES["file"]["name"]=iconv("gb2312","UTF-8",$_FILES["file"]["name"]);
-			 	$this->postexcelc($newPath);
-				//echo "<br/>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;导入成功，请关闭窗口！";
-
+				$stats = $this->postexcelc($newPath);
+				header("Content-type: application/json; charset=utf-8");
+				echo json_encode(array(
+					'status' => 200,
+					'msg' => isset($stats['stoppedByDuplicate']) && $stats['stoppedByDuplicate'] ? '导入已停止（存在重复）' : '导入完成',
+					'successCount' => isset($stats['success']) ? (int)$stats['success'] : 0,
+					'duplicateCount' => isset($stats['duplicate']) ? (int)$stats['duplicate'] : 0,
+					'duplicateNumbers' => isset($stats['duplicateNumbers']) ? $stats['duplicateNumbers'] : array(),
+					'stoppedByDuplicate' => isset($stats['stoppedByDuplicate']) ? (bool)$stats['stoppedByDuplicate'] : false,
+					'duplicateRow' => isset($stats['duplicateRow']) ? (int)$stats['duplicateRow'] : 0,
+					'errors' => isset($stats['errors']) ? $stats['errors'] : array()
+				), JSON_UNESCAPED_UNICODE);
+				return;
 			}else{
-				header("Content-type:text/html;charset=utf-8");
-				echo "<br/>&ensp;&ensp;对不起,您上传文件的格式不正确!!";
-				//echo iconv("GB2312","UTF-8",'对不起,您上传文件的格式不正确!!');
-				exit();
+				header("Content-type: application/json; charset=utf-8");
+				echo json_encode(array('status' => -1, 'msg' => '对不起，您上传文件的格式不正确！请上传 .xls 或 .xlsx 文件。'), JSON_UNESCAPED_UNICODE);
+				return;
 			}
 	}
 	public function postexcelorders($filename)

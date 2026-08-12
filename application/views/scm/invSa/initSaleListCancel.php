@@ -108,7 +108,7 @@ a.ui-btn{margin-left:10px;}
   </div>
 </div>
 <input type="text" id="checked" value="3" hidden>
-<script src="<?php echo base_url()?>statics/js/dist/salesList.js?ver=20140430"></script>
+<script src="<?php echo base_url()?>statics/js/dist/salesList.js?ver=2026081302"></script>
 
 <script>
     $('#refresh').click(function(){

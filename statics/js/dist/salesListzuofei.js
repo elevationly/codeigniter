@@ -177,7 +177,7 @@ var THISPAGE = {
 			altRows: !0,
 			gridview: !0,
 			multiselect: !0,
-			colNames: ["操作", "单据日期", "单据编号", "项目名"/*, "总数量", "总金额", "已" + c + "款"*/, "领料人", "制单人", "审核人", "备注", "订单来源"],
+			colNames: ["操作", "单据日期", "单据编号", "项目名"/*, "总数量", "总金额", "已" + c + "款"*/, "领料人", "制单人", "审核人", "仓库", "备注", "订单来源"],
 			colModel: [{
 				name: "operating",
 				width: 60,
@@ -256,6 +256,13 @@ var THISPAGE = {
 				align: "center",
 				title: !0,
 				classes: "ui-ellipsis"
+			}, {
+				name: "locationNames",
+				index: "locationNames",
+				width: 200,
+				align: "center",
+				classes: "ui-ellipsis",
+				sortable: !1
 			}, {
 				name: "description",
 				index: "description",

@@ -15,6 +15,7 @@ class Customer extends CI_Controller {
         $type   = intval($this->input->get('type',TRUE))==10 ? 10 : -10;
         $design   = intval($this->input->get('design',TRUE));
         $apply   = intval($this->input->get('apply',TRUE));
+        $disable = intval($this->input->get('disable',TRUE));
         $skey   = str_enhtml($this->input->get_post('skey',TRUE));
         $remark_   = str_enhtml($this->input->get_post('remark_',TRUE));
         $categoryid   = intval($this->input->get_post('categoryId',TRUE));
@@ -31,6 +32,10 @@ class Customer extends CI_Controller {
         if($apply != 0){
             $apply = $apply == -1 ? 0 : $apply;
             $where .= " and apply = $apply ";
+        }
+        if($disable != 0){
+            $disable = $disable == -1 ? 0 : $disable;
+            $where .= " and disable = $disable ";
         }
         $data['list'] = $this->mysql_model->get_results('contact',$where,'id desc');
         foreach ($data['list'] as $arr=>$row){

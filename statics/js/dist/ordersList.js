@@ -89,7 +89,19 @@ $(function() {
                 align: "center",
                 width: 100,
                 classes: "ui-ellipsis"
-            },{
+            }, {
+				name: "cangkuInventory",
+				label: "仓储库存数量",
+				index: "cangkuInventory",
+				align: "center",
+				width: 110,
+				classes: "ui-ellipsis",
+				sortable: !1,
+				formatter: function(a) {
+					var b = parseFloat(a);
+					return isNaN(b) ? "0.000" : b.toFixed(3)
+				}
+			}, {
 				name: "mainUnit",
 				label: "单位",
 				index: "mainUnit",

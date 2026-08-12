@@ -4,6 +4,7 @@
 var DOMAIN = document.domain;
 var WDURL = "";
 var SCHEME= "<?php echo sys_skin()?>";
+var SITE_URL = "<?php echo rtrim(site_url(), '/'); ?>";
 try{
 	document.domain = '<?php echo base_url()?>';
 }catch(e){
